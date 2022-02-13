@@ -10,8 +10,8 @@ const ProSchema = mongoose.Schema({
         required: true
     },
     subcategory: String,
-    fabric: String,
-    color: String,
+    fabrics: Array,
+    colors: Array,
     tags: Array,
     dateAdded: {
         type: Date,

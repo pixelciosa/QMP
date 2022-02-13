@@ -25,6 +25,7 @@
         justify-content: center;
         column-gap: 0.5rem;
         padding: 0 1rem;
+        align-items: flex-start;
     }
     .Card {
         border: 1px solid rgba(219, 219, 219, 1);

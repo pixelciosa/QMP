@@ -8,10 +8,22 @@
 
     let category;
 
-    async function onSubmit(e) {
+    function strToArr(str) {
+        let arr = str.replace(', ', ',').split(',');
+        return arr;
+    }
 
+    async function onSubmit(e) {
         // Get the data from the form
-        const formData = Object.fromEntries(new FormData(e.target).entries());
+        let formData = Object.fromEntries(new FormData(e.target).entries());
+
+        // Split comma separated strings in arrays
+        let arrTags = strToArr(formData.tags);
+        formData.tags = arrTags;
+        let arrFabric = strToArr(formData.fabrics);
+        formData.fabric = arrFabric;
+
+
         // Send data to the API
         await fetch('http://localhost:3000/props/',{
             method:'POST',
@@ -68,7 +80,7 @@
         height: 32px;
         margin-top: 0;
     }
-    label[for="color"] {
+    label[for="colors"] {
         display: flex;
         flex-direction: column;
         font-size: 0.6rem;
@@ -140,20 +152,20 @@
                 name="imgUrl"
                 placeholder="Choose a picture"
             />
-            <label for="color">Color
+            <label for="colors">Color
                 <input
                     type="color"
-                    id="color"
-                    name="color"
+                    id="colors"
+                    name="colors"
                     placeholder="Main color"
                     value="#ffffff"
                 />
             </label>
             <input
                 type="text"
-                id="fabric"
-                name="fabric"
-                placeholder="Main fabric"
+                id="fabrics"
+                name="fabrics"
+                placeholder="Fabrics"
             />
             <input
                 type="text"

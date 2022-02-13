@@ -3,7 +3,6 @@
     $: editMode = false;
     $: updatedValues = false;
     $: updatedValuesObj = {};
-    $: originalProp = {};
     
     async function deleteProp(prop) {
         const response = await fetch(`http://localhost:3000/props/${prop._id}`, {
@@ -27,8 +26,33 @@
         let key = this.id;
         let oldValue = prop[key];
         if (editMode == true) {
+            // Add button to add new values to arrays
+            if (this.innerHTML.includes('+')) {
+                this.innerHTML = '';
+            }
             this.addEventListener('input', function () {
+
                 let newValue = this.innerHTML;
+
+                // If array
+                if (key.includes('-')) {
+                    let arrKey = key.split('-')[0];
+                    let arrIndex = key.split('-')[1];
+                    if (newValue != prop[arrKey][arrIndex]) {
+                        updatedValuesObj[arrKey] = prop[arrKey];
+                        if (newValue.length > 0) {
+                            updatedValues = true;
+                            if (arrIndex > updatedValuesObj[arrKey].length) {
+                                updatedValuesObj[arrKey].push(newValue.toLowerCase());
+                            } else {
+                                updatedValuesObj[arrKey][arrIndex] = newValue.toLowerCase();
+                            }
+                        }else if (newValue == '' || newValue == ' ') {
+                            updatedValues = true;
+                            updatedValuesObj[arrKey].splice(arrIndex, 1);
+                        }
+                    }
+                }
                 if (oldValue != newValue) {
                     updatedValues = true
                     updatedValuesObj[key] = newValue;
@@ -40,7 +64,6 @@
         editMode = true;
     }
     function cancelEditProp() {
-        console.log(updatedValuesObj);
         if (JSON.stringify(updatedValuesObj) === '{}') {
             editMode = false;
             updatedValues = false;
@@ -78,7 +101,7 @@
     .Prop {
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr 3fr 1fr;
+        grid-template-rows: 1fr 5fr 1fr;
         height: 100%;
         width: 100%;
     }
@@ -106,6 +129,7 @@
     }
     .prop_title h2{
         margin-top: 0px;
+        text-transform: capitalize;
     }
     .prop_info {
         grid-row: 2;
@@ -127,29 +151,68 @@
         border: solid 1px #000;
         border-radius: 3px;
         padding: 2px 4px;
+        text-transform: capitalize;
         background-color: rgba(255, 255, 255, 0.4);
     }
-    .prop_info_features {
+    .prop_info_colors,
+    .prop_info_fabrics {
         list-style: none;
         padding-left: 0;
         margin: 5px 0;
         max-width: 50%;
+    }
+    .prop_info_fabrics li{
+        text-transform: capitalize;
     }
     .Prop *:not(button):focus {
         background-color: rgba(154, 154, 154, 0.2);
         outline: none;
         padding-left: 5px;
     }
-    #color {
+    .prop_info_colors li {
         list-style: none;
-        display: block;
+        display: inline-block;
         font-size: 0.65rem;
-        width: 26px;
-        height: 26px;
-        border-radius: 13px;
+        padding: 3px 6px 3px 3px;
+        border-style: solid;
+        border-width: 0 0 0 15px;
+        border-radius: 10px;
         text-align: center;
-        margin-bottom: 5px;;
+        margin-bottom: 5px;
+        margin-right: 5px;
+        background-color: #DEDEDE;
     }
+    .prop_info_colors li.prop_add-color {
+        border-width: 0px;
+        padding: 3px 6px;
+        min-width: 12px;
+        height: 19px;
+        box-sizing: border-box;
+    }
+    #imgUrl {
+        max-width: 100%;
+        height: auto;
+        overflow: auto;
+        font-size: 0.65rem;
+	}
+    .dont-break-out {
+        /* These are technically the same, but use both */
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+
+        -ms-word-break: break-all;
+        /* This is the dangerous one in WebKit, as it breaks things wherever */
+        word-break: break-all;
+        /* Instead use this non-standard one: */
+        word-break: break-word;
+
+        /* Adds a hyphen where the word breaks, if supported (No Blink) */
+        -ms-hyphens: auto;
+        -moz-hyphens: auto;
+        -webkit-hyphens: auto;
+        hyphens: auto;
+
+        }
     .prop_actions {
         grid-row: 3;
         grid-column: 1;
@@ -170,26 +233,69 @@
         <h2 id="title" on:click={handleClick} contentEditable={editMode ? 'true' : 'false'}>{prop.title}</h2>
     </div>
     <div class="prop_info">
-        {#if prop.tags != ''}
+        {#if prop.tags}
             <ul class="prop_info_tags">
                 {#each prop.tags as tag, i}
-                <li id="tag-{i}">{tag}</li>
+                    <li id="tags-{i}"
+                    on:click="{handleClick}"
+                    contentEditable={editMode ? 'true' : 'false'}>
+                        {tag}
+                    </li>
+                {:else}
+                    {#if editMode && prop.tags[0] == undefined}
+                        <li id="tags-{prop.tags.length}" on:click="{handleClick}" contentEditable="true">+ tag</li>
+                    {/if}
                 {/each}
+                {#if editMode && prop.tags[0] != undefined}
+                    <li id="tags-{prop.tags.length}" on:click="{handleClick}" contentEditable="true">+</li>
+                {/if}
             </ul>
         {/if}
-        {#if prop.fabric || prop.color}
-            <ul class="prop_info_features">
-                {#if prop.color}
-                    <li id="color"
-                     style="background-color: {prop.color};"
-                     on:click={handleClick}
-                     contentEditable={editMode ? 'true' : 'false'}>
+        {#if prop.colors}
+            <ul class="prop_info_colors">
+                {#each prop.colors as color, i}
+                    <li id="colors-{i}"
+                    style="border-color: {color};"
+                    on:click="{handleClick}"
+                    contentEditable={editMode ? 'true' : 'false'}>
+                        {color}
                     </li>
-                {/if}
-                {#if prop.fabric}
-                    <li id="fabric" on:click={handleClick} contentEditable={editMode ? 'true' : 'false'}>{prop.fabric}</li>
+                {:else}
+                    {#if editMode && prop.colors[0] == undefined}
+                        <li class="prop_add-color" id="colors-{prop.colors.length}" on:click="{handleClick}" contentEditable="true">+ Color</li>
+                    {/if}
+                {/each}
+                {#if editMode && prop.colors[0] != undefined}
+                    <li class="prop_add-color" id="colors-{prop.colors.length}" on:click="{handleClick}" contentEditable="true">+</li>
                 {/if}
             </ul>
+        {/if}
+        {#if prop.fabrics.length}
+            <ul class="prop_info_fabrics">
+                {#each prop.fabrics as fabric, i}
+                    <li id="fabrics-{i}"
+                    on:click="{handleClick}"
+                    contentEditable={editMode ? 'true' : 'false'}>
+                        {#if fabric == "" && editMode}
+                            + fabric
+                        {:else}
+                            {fabric}
+                        {/if}
+                    </li>
+                {:else}
+                    {#if editMode && prop.fabrics[0] == undefined}
+                        <li id="fabrics-{prop.fabrics.length}" on:click="{handleClick}" contentEditable="true">+ fabric</li>
+                    {/if}
+                {/each}
+                {#if editMode && prop.fabrics[0] != undefined}
+                    <li id="fabrics-{prop.fabrics.length}" on:click="{handleClick}" contentEditable="true">+</li>
+                {/if}
+            </ul>
+        {/if}
+        {#if editMode}
+            <div class="dont-break-out" id="imgUrl" on:click={handleClick} contentEditable="true">
+                {prop.imgUrl ? prop.imgUrl : "Paste image's URL"}
+            </div>
         {/if}
     </div>
     <div class="prop_actions">

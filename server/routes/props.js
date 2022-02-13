@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
         title: req.body.title,
         category: req.body.category,
         subcategory: req.body.subcategory,
-        fabric: req.body.fabric,
+        fabrics: req.body.fabrics,
         color: req.body.color,
         tags: req.body.tags,
         imgUrl: req.body.imgUrl,
