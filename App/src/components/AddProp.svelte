@@ -1,26 +1,23 @@
 <script>
-    const top = ["T-shirt", "Polo", "Nightshirt", "Onesie", "Shirtwaist", "Sleeveless shirt",
-                 "Tube top", "Camisole", "Sweater", "Tank top" ]
-    const bottom = ["Pants", "Shorts", "Leggins", "Skirt", "Jeans", "Trousers", "Palazzo", "Slack"]
-    const feet = ["Socks", "Sneakers", "Boots", "Flats", "Sandals", "Slippers", "Slipper", "Flip-flops", "Sneakers"]
-    const accessories = ["Belt", "Sunglasses", "Hat", "Glasses", "Watch", "Necklace", "Bracelet", "Ring", "Earrings", "Bangle"]
-    const fullBody = ["Dress", "Jumpsuit", "Palazzo (full)"]
+    import strToArr from '../lib/utilities.js';
+
+    let top = ["T-shirt", "Polo", "Nightshirt", "Onesie", "Shirtwaist", "Sleeveless shirt",
+               "Tube top", "Camisole", "Sweater", "Tank top" ]
+    let bottom = ["Pants", "Shorts", "Leggins", "Skirt", "Jeans", "Trousers", "Palazzo", "Slack"]
+    let feet = ["Socks", "Sneakers", "Boots", "Flats", "Sandals", "Slippers", "Slipper", "Flip-flops", "Sneakers"]
+    let accessories = ["Belt", "Sunglasses", "Hat", "Glasses", "Watch", "Necklace", "Bracelet", "Ring", "Earrings", "Bangle"]
+    let fullBody = ["Dress", "Jumpsuit", "Palazzo (full)", "kimono"]
 
     let category;
-
-    function strToArr(str) {
-        let arr = str.replace(', ', ',').split(',');
-        return arr;
-    }
 
     async function onSubmit(e) {
         // Get the data from the form
         let formData = Object.fromEntries(new FormData(e.target).entries());
 
         // Split comma separated strings in arrays
-        let arrTags = strToArr(formData.tags);
+        let arrTags = new strToArr(formData.tags);
         formData.tags = arrTags;
-        let arrFabric = strToArr(formData.fabrics);
+        let arrFabric = new strToArr(formData.fabrics);
         formData.fabric = arrFabric;
 
 

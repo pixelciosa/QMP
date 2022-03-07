@@ -35,6 +35,12 @@
         border-bottom: solid 2px #95629d;
         outline: none;
     }
+    :global(.center) {
+        margin: 0 auto;
+        text-align: center;
+        align-self: center;
+        justify-self: center;
+    }
 </style>
 
 <Main />

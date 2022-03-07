@@ -16,16 +16,14 @@
 </script>
 
 <style>
-    .Props {
-        display: flex;
-        flex-direction: column;
-    }
     [class*="Props__container"] {
+        max-width: 100vw;
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
         column-gap: 0.5rem;
         padding: 0 1rem;
         align-items: flex-start;
+        overflow-y: auto;
     }
     .Card {
         border: 1px solid rgba(219, 219, 219, 1);
@@ -34,6 +32,7 @@
         margin: 0 0 2em 0;
         padding: 1rem;
         width: 250px;
+        min-width: 200px;
         min-height: 200px;
     }
 </style>

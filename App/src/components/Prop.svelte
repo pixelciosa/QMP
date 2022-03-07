@@ -26,8 +26,8 @@
         let key = this.id;
         let oldValue = prop[key];
         if (editMode == true) {
-            // Add button to add new values to arrays
-            if (this.innerHTML.includes('+')) {
+            // Cleaning placholders
+            if (this.innerHTML.includes('+') || this.innerHTML.includes('Paste')) {
                 this.innerHTML = '';
             }
             this.addEventListener('input', function () {
@@ -62,6 +62,7 @@
     }
     function editProp(prop) {
         editMode = true;
+        console.log(prop.fabrics);
     }
     function cancelEditProp() {
         if (JSON.stringify(updatedValuesObj) === '{}') {
@@ -145,6 +146,11 @@
         margin: 0 0 5px 0;
         max-width: 50%;
     }
+    @media (max-width: 650px) {
+        .prop_info_tags {
+            max-width: 100%;
+        }
+    }
     .prop_info_tags li {
         list-style: none;
         margin: 0 10px 5px 0;
@@ -181,6 +187,7 @@
         margin-bottom: 5px;
         margin-right: 5px;
         background-color: #DEDEDE;
+        box-shadow: -2px 0px 6px 0px rgba(232,190,228,0.5);
     }
     .prop_info_colors li.prop_add-color {
         border-width: 0px;
@@ -194,6 +201,7 @@
         height: auto;
         overflow: auto;
         font-size: 0.65rem;
+        margin-top: 20px;
 	}
     .dont-break-out {
         /* These are technically the same, but use both */
@@ -283,11 +291,11 @@
                         {/if}
                     </li>
                 {:else}
-                    {#if editMode && prop.fabrics[0] == undefined}
+                    {#if editMode && prop.fabrics[0] == ''}
                         <li id="fabrics-{prop.fabrics.length}" on:click="{handleClick}" contentEditable="true">+ fabric</li>
                     {/if}
                 {/each}
-                {#if editMode && prop.fabrics[0] != undefined}
+                {#if editMode && prop.fabrics[0] != ''}
                     <li id="fabrics-{prop.fabrics.length}" on:click="{handleClick}" contentEditable="true">+</li>
                 {/if}
             </ul>
