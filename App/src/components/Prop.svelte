@@ -1,8 +1,9 @@
 <script>
-    export let prop = {};
     $: editMode = false;
     $: updatedValues = false;
     $: updatedValuesObj = {};
+
+    export let prop = {};
     
     async function deleteProp(prop) {
         const response = await fetch(`http://localhost:3000/props/${prop._id}`, {
@@ -16,7 +17,7 @@
         });
         const data = await response.json();
         if(data){
-            window.location.href = '/';
+            
         } else {
             console.log(data)
             alert('Something went wrong deleting the item');
@@ -60,19 +61,20 @@
             });
         }
     }
-    function editProp(prop) {
+    function editProp() {
         editMode = true;
-        console.log(prop.fabrics);
     }
     function cancelEditProp() {
-        if (JSON.stringify(updatedValuesObj) === '{}') {
-            editMode = false;
+        editMode = false;
+        updatedValuesObj = {};
+        if (JSON.stringify(updatedValuesObj) === '{}') {  
             updatedValues = false;
-            updatedValuesObj = {};
         } else {
             console.log('cancel');
-            window.location.href = '/';
+            updatedValues = true;
         }
+        console.log(prop);
+        return prop;
     }
     async function saveEditedProp(prop) {
         if (updatedValuesObj != {}) {
@@ -89,7 +91,6 @@
             const data = await response.json();
             if(data){
                 editMode = false;
-                window.location.href = '/';
             } else {
                 //console.log(data)
                 alert('Something went wrong editing the item');

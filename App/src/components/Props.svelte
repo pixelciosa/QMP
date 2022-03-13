@@ -1,18 +1,9 @@
 <script>
-    import {onMount} from "svelte";
     import Prop from "./Prop.svelte";
 
     export let category;
-    let props = [];
+    export let props;
     
-    onMount(async () => {
-        await fetch(`http://localhost:3000/props/`)
-            .then(r => r.json())
-            .then(data => {
-                props = data;
-                //console.log(props);
-            })
-    })
 </script>
 
 <style>

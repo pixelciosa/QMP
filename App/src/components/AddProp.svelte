@@ -1,12 +1,43 @@
 <script>
+    import {onMount} from "svelte";
     import strToArr from '../lib/utilities.js';
 
-    let top = ["T-shirt", "Polo", "Nightshirt", "Onesie", "Shirtwaist", "Sleeveless shirt",
-               "Tube top", "Camisole", "Sweater", "Tank top" ]
-    let bottom = ["Pants", "Shorts", "Leggins", "Skirt", "Jeans", "Trousers", "Palazzo", "Slack"]
-    let feet = ["Socks", "Sneakers", "Boots", "Flats", "Sandals", "Slippers", "Slipper", "Flip-flops", "Sneakers"]
-    let accessories = ["Belt", "Sunglasses", "Hat", "Glasses", "Watch", "Necklace", "Bracelet", "Ring", "Earrings", "Bangle"]
-    let fullBody = ["Dress", "Jumpsuit", "Palazzo (full)", "kimono"]
+    export let props;
+
+    let categories = {};
+    let topSubcategories = [];
+    let bottomSubcategories = [];
+    let feetSubcategories = [];
+    let accessoriesSubcategories = [];
+    let fullBodySubcategories = [];
+
+    onMount(async () => {
+        await fetch(`http://localhost:3000/categories/`)
+            .then(r => r.json())
+            .then(data => {
+                categories = data.map((category) => {
+                    return {
+                        name: category.name,
+                        subcategories: category.subcategories
+                    }
+                });
+            })
+            .then(() => {
+                categories.forEach(category => {
+                    if (category.name === 'top') {
+                        topSubcategories = category.subcategories;
+                    } else if (category.name === 'bottom') {
+                        bottomSubcategories = category.subcategories;
+                    } else if (category.name === 'feet') {
+                        feetSubcategories = category.subcategories;
+                    } else if (category.name === 'accessories') {
+                        accessoriesSubcategories = category.subcategories;
+                    } else if (category.name === 'fullBody') {
+                        fullBodySubcategories = category.subcategories;
+                    }
+                });
+            });
+    });
 
     let category;
 
@@ -17,9 +48,10 @@
         // Split comma separated strings in arrays
         let arrTags = new strToArr(formData.tags);
         formData.tags = arrTags;
-        let arrFabric = new strToArr(formData.fabrics);
-        formData.fabric = arrFabric;
-
+        let arrFabrics = new strToArr(formData.fabrics);
+        formData.fabric = arrFabrics;
+        let arrColors = new strToArr(formData.colors);
+        formData.colors = arrColors;
 
         // Send data to the API
         await fetch('http://localhost:3000/props/',{
@@ -30,11 +62,16 @@
             body: JSON.stringify(formData),
         }).then(
             () => {
-                // reload current page
-                window.location.href = '/';
+                 
+                // Reset the form
+                e.target.reset();
+                // Update local props object to show the new prop inmediatly
+                props = props.concat(Array(formData));
             }
-        )     
+        );
+           
     }
+
 </script>
 <style>
     .AddProp {
@@ -119,24 +156,24 @@
             <select name="subcategory" id="subcategory">
                 <option value="">What kind is it?</option>
                 {#if category == "top"}
-                    {#each top as topItem}
-                        <option value="{topItem}">{topItem}</option>
+                    {#each topSubcategories as topSubcategory}
+                        <option value="{topSubcategory}">{topSubcategory}</option>
                     {/each}
                 {:else if category == "bottom"}
-                    {#each bottom as bottomItem}
-                        <option value="{bottomItem}">{bottomItem}</option>
+                    {#each bottomSubcategories as bottomSubcategory}
+                        <option value="{bottomSubcategory}">{bottomSubcategory}</option>
                     {/each}
                 {:else if category == "fullBody"}
-                    {#each fullBody as fullBodyItem}
-                        <option value="{fullBodyItem}">{fullBodyItem}</option>
+                    {#each fullBodySubcategories as fullBodySubcategory}
+                        <option value="{fullBodySubcategory}">{fullBodySubcategory}</option>
                     {/each}
                 {:else if category == "feet"}
-                    {#each feet as foot}
-                        <option value="{foot}">{foot}</option>
+                    {#each feetSubcategories as footSubcategory}
+                        <option value="{footSubcategory}">{footSubcategory}</option>
                     {/each}
                 {:else if category == "accessories"}
-                    {#each accessories as accessory}
-                        <option value="{accessory}">{accessory}</option>
+                    {#each accessoriesSubcategories as accessorySubcategory}
+                        <option value="{accessorySubcategory}">{accessorySubcategory}</option>
                     {/each}
                 {/if}
             </select>

@@ -14,8 +14,10 @@ app.use(cors());
 
 // Import Routes
 const propsRoute = require('./routes/props');
+const categoriesRoute = require('./routes/categories');
 
 app.use('/props', propsRoute);
+app.use('/categories', categoriesRoute);
 
 // ROUTES
 app.get('/', (req, res) => {

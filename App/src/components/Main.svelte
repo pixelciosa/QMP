@@ -1,12 +1,22 @@
 <script>
 
+import {onMount} from "svelte";
 import Props from "./Props.svelte";
 import AddProp from "./AddProp.svelte";
 import Switch from "./../atoms/Switch.svelte";
 // import Timeline from "./Timeline.svelte";
 // import Actions from "./Actions.svelte";
 
+$: props = [];
 $: fullBody = {label: 'Full body', value:false};
+
+onMount(async () => {
+    await fetch(`http://localhost:3000/props/`)
+        .then(r => r.json())
+        .then(data => {
+            props = data;
+        })
+})
 
 </script>
 
@@ -29,7 +39,7 @@ $: fullBody = {label: 'Full body', value:false};
     <div class="Main__container">
         <!-- <Timeline />
         <Actions /> -->
-        <AddProp />
+        <AddProp bind:props={props} />
         <div class="Main__container__controls">
             <div class="center">
                 <Switch bind:Switch={fullBody} /><span>{fullBody.label}</span>
@@ -37,12 +47,12 @@ $: fullBody = {label: 'Full body', value:false};
         </div>
         <div class="Props">
             {#if fullBody.value == false}
-                <Props category="top"/>
-                <Props category="bottom"/>
+                <Props category="top" bind:props={props} />
+                <Props category="bottom" bind:props={props} />
             {:else}
-                <Props category="fullBody"/>
+                <Props category="fullBody" bind:props={props} />
             {/if}
-            <Props category="feet"/>
+            <Props category="feet" bind:props={props} />
         </div>
     </div>
 </div>
