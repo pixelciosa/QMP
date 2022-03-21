@@ -8,7 +8,7 @@ const ProSchema = mongoose.Schema({
     subcategories: {
         type: Array
     },
-    graphics: {
+    graphic: {
         type: String
     }
 });

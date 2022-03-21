@@ -1,8 +1,7 @@
 <script>
     import Prop from "./Prop.svelte";
-
-    export let category;
     export let props;
+    export let category;
     
 </script>
 
@@ -29,13 +28,11 @@
 </style>
 
 <div class="Props__container--{category}">
-    {#if props.find(p => p.category === category)}
+    {#if props}
         {#each props as prop}
-            {#if prop.category == category}
-                <div class="Card">
-                    <Prop {prop} />
-                </div>
-            {/if}
+            <div class="Card">
+                <Prop {prop} />
+            </div>
         {/each}
     {:else}
         <p class="loading">loading...</p>

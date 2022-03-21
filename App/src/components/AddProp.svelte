@@ -1,6 +1,7 @@
 <script>
     import {onMount} from "svelte";
-    import strToArr from '../lib/utilities.js';
+    import {strToArr} from '../lib/utilities.js';
+    import {categoriesFactory} from "../lib/factories.js";
 
     export let props;
 
@@ -17,10 +18,13 @@
             .then(data => {
                 categories = data.map((category) => {
                     return {
-                        name: category.name,
+                        title: category.title,
                         subcategories: category.subcategories
                     }
                 });
+            })
+            .then(() => {
+                let categoriesObj = categoriesFactory(categories);
             })
             .then(() => {
                 categories.forEach(category => {

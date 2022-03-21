@@ -1,9 +1,13 @@
 <script>
+    import {deepCopy} from "../lib/utilities.js";
+
     $: editMode = false;
     $: updatedValues = false;
     $: updatedValuesObj = {};
+    $: prop;
 
     export let prop = {};
+    let initialProp;
     
     async function deleteProp(prop) {
         const response = await fetch(`http://localhost:3000/props/${prop._id}`, {
@@ -17,7 +21,7 @@
         });
         const data = await response.json();
         if(data){
-            
+            console.log('Delete success');
         } else {
             console.log(data)
             alert('Something went wrong deleting the item');
@@ -25,12 +29,16 @@
     }
     function handleClick() {
         let key = this.id;
-        let oldValue = prop[key];
+        let initialValue = prop[key];
+        console.log('prop', prop);
+        console.log('type prop', typeof(prop));
         if (editMode == true) {
             // Cleaning placholders
             if (this.innerHTML.includes('+') || this.innerHTML.includes('Paste')) {
                 this.innerHTML = '';
             }
+
+            // Editing
             this.addEventListener('input', function () {
 
                 let newValue = this.innerHTML;
@@ -54,7 +62,7 @@
                         }
                     }
                 }
-                if (oldValue != newValue) {
+                if (initialValue != newValue) {
                     updatedValues = true
                     updatedValuesObj[key] = newValue;
                 }
@@ -63,18 +71,23 @@
     }
     function editProp() {
         editMode = true;
+        initialProp = deepCopy(prop);
     }
-    function cancelEditProp() {
-        editMode = false;
-        updatedValuesObj = {};
-        if (JSON.stringify(updatedValuesObj) === '{}') {  
+    function cancelEditProp(prop) {
+        if (JSON.stringify(updatedValuesObj) === '{}') { 
+            updatedValuesObj = {}; 
             updatedValues = false;
+            editMode = false;
         } else {
-            console.log('cancel');
             updatedValues = true;
+            // console.log(updatedValuesObj);
+            updatedValuesObj = {};
+            prop = initialProp;
+            console.log('cancel');
+            console.log('prop', prop);
+            editMode = false;
+            return prop;
         }
-        console.log(prop);
-        return prop;
     }
     async function saveEditedProp(prop) {
         if (updatedValuesObj != {}) {
@@ -239,7 +252,11 @@
         <img src="{prop.imgUrl}" alt="">
     </div>
     <div class="prop_title">
-        <h2 id="title" on:click={handleClick} contentEditable={editMode ? 'true' : 'false'}>{prop.title}</h2>
+        <h2 id="title" 
+            on:click={handleClick} 
+            contentEditable={editMode ? 'true' : 'false'}>
+                {prop.title}
+        </h2>
     </div>
     <div class="prop_info">
         {#if prop.tags}
@@ -252,11 +269,19 @@
                     </li>
                 {:else}
                     {#if editMode && prop.tags[0] == undefined}
-                        <li id="tags-{prop.tags.length}" on:click="{handleClick}" contentEditable="true">+ tag</li>
+                        <li id="tags-{prop.tags.length}" 
+                            on:click="{handleClick}" 
+                            contentEditable="true">
+                                + tag
+                        </li>
                     {/if}
                 {/each}
                 {#if editMode && prop.tags[0] != undefined}
-                    <li id="tags-{prop.tags.length}" on:click="{handleClick}" contentEditable="true">+</li>
+                    <li id="tags-{prop.tags.length}" 
+                        on:click="{handleClick}" 
+                        contentEditable="true">
+                            +
+                    </li>
                 {/if}
             </ul>
         {/if}

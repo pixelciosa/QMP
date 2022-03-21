@@ -4,6 +4,7 @@ import {onMount} from "svelte";
 import Props from "./Props.svelte";
 import AddProp from "./AddProp.svelte";
 import Switch from "./../atoms/Switch.svelte";
+import {propsFactory} from "../lib/factories.js";
 // import Timeline from "./Timeline.svelte";
 // import Actions from "./Actions.svelte";
 
@@ -14,8 +15,9 @@ onMount(async () => {
     await fetch(`http://localhost:3000/props/`)
         .then(r => r.json())
         .then(data => {
-            props = data;
+            props = propsFactory(data);
         })
+        .catch(e => console.log(e));
 })
 
 </script>
@@ -47,12 +49,12 @@ onMount(async () => {
         </div>
         <div class="Props">
             {#if fullBody.value == false}
-                <Props category="top" bind:props={props} />
-                <Props category="bottom" bind:props={props} />
+                <Props category="top" bind:props={props.top} />
+                <Props category="bottom" bind:props={props.bottom} />
             {:else}
-                <Props category="fullBody" bind:props={props} />
+                <Props category="fullBody" bind:props={props.fullBody} />
             {/if}
-            <Props category="feet" bind:props={props} />
+            <Props category="feet" bind:props={props.feet} />
         </div>
     </div>
 </div>
