@@ -1,32 +1,61 @@
 <script>
-    import {deepCopy} from "../lib/utilities.js";
+    import { deepCopy, revertChanges } from "../lib/utilities";
+    import { deleteUndoToast } from "../lib/toasts";
+    import Toast from "./../atoms/Toast.svelte";
+
+    export let prop = {};
+    export let props;
+    let initialProp;
 
     $: editMode = false;
     $: updatedValues = false;
     $: updatedValuesObj = {};
     $: prop;
-
-    export let prop = {};
-    let initialProp;
+    $: props = props;
+    $: toast = null;
     
-    async function deleteProp(prop) {
-        const response = await fetch(`http://localhost:3000/props/${prop._id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: prop._id
-            })
-        });
-        const data = await response.json();
-        if(data){
-            console.log('Delete success');
-        } else {
-            console.log(data)
-            alert('Something went wrong deleting the item');
+
+    async function asyncDelete(prop) {
+        props.splice(props.indexOf(prop), 1);
+
+        function undoDelete() {
+            return new Promise (resolve => {
+                toast = deleteUndoToast;
+                setTimeout(() => {
+                    resolve(toast.ToastActionClicked);
+                }, toast.ToastDuration);
+            });
+        };
+
+        async function deleteProp(prop) {
+            const response = await fetch(`http://localhost:3000/props/${prop._id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: prop._id
+                })
+            });
+            const data = await response.json();
+            if(data){
+                console.log('Delete success', data);
+            } else {
+                console.log(data)
+                alert('Something went wrong deleting the item');
+            }
         }
+
+        const result = await undoDelete();
+        if (result == false) {
+            console.log('Yes delete!');
+            deleteProp(prop);
+        } else if (result == true) {
+            console.log('No delete!')
+        }
+        return props;
     }
+    
     function handleClick() {
         let key = this.id;
         let initialValue = prop[key];
@@ -63,6 +92,7 @@
                     }
                 }
                 if (initialValue != newValue) {
+                    this.classList.add('updated');
                     updatedValues = true
                     updatedValuesObj[key] = newValue;
                 }
@@ -80,13 +110,19 @@
             editMode = false;
         } else {
             updatedValues = true;
-            // console.log(updatedValuesObj);
-            updatedValuesObj = {};
-            prop = initialProp;
-            console.log('cancel');
-            console.log('prop', prop);
             editMode = false;
-            return prop;
+            revertChanges(initialProp, prop);
+            document.querySelectorAll('.updated').forEach(function (el) {
+                if (el.id.includes('-')) {
+                    let arrKey = el.id.split('-')[0];
+                    let arrIndex = el.id.split('-')[1];
+                    el.innerHTML = prop[arrKey][arrIndex];
+                } else {
+                    el.innerHTML = prop[el.id];
+                }
+                el.classList.remove('updated');
+            });
+            updatedValuesObj = {};
         }
     }
     async function saveEditedProp(prop) {
@@ -352,7 +388,11 @@
         </div>
         {/if}
         <button on:click={
-            () => deleteProp(prop)
+            () => asyncDelete(prop)
         }><i class="far fa-trash-alt"></i></button>
     </div>
 </article>
+
+{#if toast != null}
+    <Toast bind:Toast={ toast }/>
+{/if}

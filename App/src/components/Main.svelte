@@ -1,6 +1,6 @@
 <script>
 
-import {onMount} from "svelte";
+import {onMount, afterUpdate} from "svelte";
 import Props from "./Props.svelte";
 import AddProp from "./AddProp.svelte";
 import Switch from "./../atoms/Switch.svelte";
@@ -8,7 +8,7 @@ import {propsFactory} from "../lib/factories.js";
 // import Timeline from "./Timeline.svelte";
 // import Actions from "./Actions.svelte";
 
-$: props = [];
+$: props = {};
 $: fullBody = {label: 'Full body', value:false};
 
 onMount(async () => {
@@ -19,6 +19,14 @@ onMount(async () => {
         })
         .catch(e => console.log(e));
 })
+afterUpdate(() => {
+    
+});
+
+function reloadProps() {
+    console.log('submitted', event.detail);
+    console.log('updated props',props);
+}
 
 </script>
 
@@ -41,7 +49,7 @@ onMount(async () => {
     <div class="Main__container">
         <!-- <Timeline />
         <Actions /> -->
-        <AddProp bind:props={props} />
+        <AddProp bind:props={props} on:submit={reloadProps} />
         <div class="Main__container__controls">
             <div class="center">
                 <Switch bind:Switch={fullBody} /><span>{fullBody.label}</span>

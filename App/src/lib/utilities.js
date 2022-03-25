@@ -6,6 +6,10 @@ function strToArr(str, unique = true) {
     return arr;
 }
 
+function requiredParam(param) {
+    throw new Error(param + " es obligatorio");
+  }
+
 function isObject(subject) {
 	return typeof subject == "object";
 }
@@ -79,5 +83,13 @@ SuperObject.deepCopy = function (subject) {
   return copySubject;
 }
 
+function revertChanges(initialState, currentState) {
+    for (const key in currentState) {
+        if (currentState[key] !== initialState[key]) {
+        currentState[key] = initialState[key];
+        }
+    }
+}
 
-export { strToArr, isObject, isArray, deepCopy, SuperObject } 
+
+export { strToArr, requiredParam, isObject, isArray, deepCopy, SuperObject, revertChanges } 

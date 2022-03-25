@@ -1,7 +1,7 @@
 
 class categoryObject{
     constructor({
-        title = requiredParam('title'),
+        title = '',
         subcategories = [],
         graphic = ''
     }) {
@@ -23,38 +23,39 @@ function categoriesFactory(arr) {
     for (let i = 0; i < arr.length; i++) {
         if (arr[i].title === 'top') {
             categoriesObj['top'] = new categoryObject(arr[i]);
-            // categoriesObj.top.subcategories.push(arr[i].subcategories);
-            // categoriesObj.top.graphic = (arr[i].graphic);
+            categoriesObj.top.subcategories = arr[i].subcategories;
+            categoriesObj.top.graphic = (arr[i].graphic);
         };
         if (arr[i].title === 'bottom') {
             categoriesObj['bottom'] = new categoryObject(arr[i]);
-            // categoriesObj.bottom.subcategories = arr[i].subcategories;
-            // categoriesObj.bottom.graphic = (arr[i].graphic);
+            categoriesObj.bottom.subcategories = arr[i].subcategories;
+            categoriesObj.bottom.graphic = (arr[i].graphic);
         };
         if (arr[i].title === 'feet') {
             categoriesObj['feet'] = new categoryObject(arr[i]);
-            // categoriesObj.feet.subcategories = arr[i].subcategories;
-            // categoriesObj.feet.graphic = (arr[i].graphic);
+            categoriesObj.feet.subcategories = arr[i].subcategories;
+            categoriesObj.feet.graphic = (arr[i].graphic);
         };
         if (arr[i].title === 'fullBody') {
             categoriesObj['fullBody'] = new categoryObject(arr[i]);
-            // categoriesObj.fullBody.subcategories = arr[i].subcategories;
-            // categoriesObj.fullBody.graphic = (arr[i].graphic);
+            categoriesObj.fullBody.subcategories = arr[i].subcategories;
+            categoriesObj.fullBody.graphic = (arr[i].graphic);
         };
         if (arr[i].title === 'accessories') {
             categoriesObj['accessories'] = new categoryObject(arr[i]);
-            // categoriesObj.accessories.subcategories = arr[i].subcategories;
-            // categoriesObj.accessories.graphic = (arr[i].graphic);
+            categoriesObj.accessories.subcategories = arr[i].subcategories;
+            categoriesObj.accessories.graphic = (arr[i].graphic);
         }
-        return categoriesObj
     }
+    return categoriesObj
 }
 
 
 class propObject {
     constructor({
-        title = requiredParam('title'),
-        category = requiredParam('category'),
+        _id = '',
+        title = '',
+        category = '',
         subcategory = '',
         fabrics = [],
         colors = [],
@@ -62,6 +63,7 @@ class propObject {
         dateAdded = dateAdded,
         imgUrl = '',
     }) {
+        this._id = _id;
         this.title = title;
         this.category = category;
         this.subcategory = subcategory;
@@ -113,7 +115,6 @@ function propsFactory(arr) {
         'accessories': []
     };
     for (let i = 0; i < arr.length; i++) {
-        console.log(arr[i].title);
         if (arr[i].category === 'top') {
             let obj = new topObject(arr[i]);
             propsObj['top'].push(obj);
@@ -139,4 +140,4 @@ function propsFactory(arr) {
     return propsObj;
 }
 
-export { propsFactory, categoriesFactory };
+export { propsFactory, categoriesFactory, propObject, topObject, bottomObject, feetObject, fullBodyObject, accessoryObject };

@@ -2,6 +2,8 @@
     import Prop from "./Prop.svelte";
     export let props;
     export let category;
+
+    $: props = props;
     
 </script>
 
@@ -31,7 +33,7 @@
     {#if props}
         {#each props as prop}
             <div class="Card">
-                <Prop {prop} />
+                <Prop {prop} bind:props={props} />
             </div>
         {/each}
     {:else}

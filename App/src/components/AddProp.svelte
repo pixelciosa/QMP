@@ -1,18 +1,28 @@
 <script>
     import {onMount} from "svelte";
+    import { createEventDispatcher } from 'svelte';
     import {strToArr} from '../lib/utilities.js';
-    import {categoriesFactory} from "../lib/factories.js";
+    import {categoriesFactory, topObject, bottomObject, feetObject, accessoryObject, fullBodyObject} from "../lib/factories.js";
 
+    const dispatch = createEventDispatcher();
     export let props;
+    $: props = props;
+    // let initialPropsLength = props[top].length;
+    // $: if (props[top].length != initialPropsLength) {
+    //     console.log('props changed');
+    // }
 
     let categories = {};
+    let categoriesObj = {};
     let topSubcategories = [];
     let bottomSubcategories = [];
     let feetSubcategories = [];
     let accessoriesSubcategories = [];
     let fullBodySubcategories = [];
+    let category;
 
     onMount(async () => {
+        console.log('props on mount Add item', props);
         await fetch(`http://localhost:3000/categories/`)
             .then(r => r.json())
             .then(data => {
@@ -24,26 +34,26 @@
                 });
             })
             .then(() => {
-                let categoriesObj = categoriesFactory(categories);
+                categoriesObj = categoriesFactory(categories);
             })
             .then(() => {
-                categories.forEach(category => {
-                    if (category.name === 'top') {
-                        topSubcategories = category.subcategories;
-                    } else if (category.name === 'bottom') {
-                        bottomSubcategories = category.subcategories;
-                    } else if (category.name === 'feet') {
-                        feetSubcategories = category.subcategories;
-                    } else if (category.name === 'accessories') {
-                        accessoriesSubcategories = category.subcategories;
-                    } else if (category.name === 'fullBody') {
-                        fullBodySubcategories = category.subcategories;
+                for (const key in categoriesObj){
+                    if (key === 'top'){
+                        topSubcategories = categoriesObj[key].subcategories;
+                    } else if (key === 'bottom'){
+                        bottomSubcategories = categoriesObj[key].subcategories;
+                    } else if (key === 'feet'){
+                        feetSubcategories = categoriesObj[key].subcategories;
+                    } else if (key === 'accessories'){
+                        accessoriesSubcategories = categoriesObj[key].subcategories;
+                    } else if (key === 'fullBody'){
+                        fullBodySubcategories = categoriesObj[key].subcategories;
                     }
-                });
+                }
             });
     });
 
-    let category;
+    
 
     async function onSubmit(e) {
         // Get the data from the form
@@ -66,14 +76,30 @@
             body: JSON.stringify(formData),
         }).then(
             () => {
-                 
                 // Reset the form
                 e.target.reset();
                 // Update local props object to show the new prop inmediatly
-                props = props.concat(Array(formData));
+                let newObj;
+                if (formData.category == 'top') {
+                    newObj = new topObject(formData);
+                };
+                if (formData.category == 'bottom') {
+                    newObj = new bottomObject(formData);
+                };
+                if (formData.category == 'feet') {
+                    newObj = new feetObject(formData);
+                };
+                if (formData.category == 'accessories') {
+                    newObj = new accessoryObject(formData);
+                };
+                if (formData.category == 'fullBody') {
+                    newObj = new fullBodyObject(formData);
+                };
+                props[formData.category].push(newObj);
             }
         );
-           
+        console.log(props);
+        return props;  
     }
 
 </script>
@@ -181,7 +207,7 @@
                     {/each}
                 {/if}
             </select>
-            <button type="submit">Add</button>
+            <button type="submit" on:click="{() => dispatch('submit', props)}">Add</button>
         </div>
         <div class="form_group">
             <input

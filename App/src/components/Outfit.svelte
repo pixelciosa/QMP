@@ -1,5 +1,5 @@
 <script>
-    import yesterdaysOutfit from './../assets/outfits/1356797822.jpeg'
+
 </script>
 
 <style>
@@ -9,4 +9,3 @@
     }
 </style>
 
-<img src="{yesterdaysOutfit}" alt="Yesterday's outfit">
