@@ -5,28 +5,29 @@ import Props from "./Props.svelte";
 import AddProp from "./AddProp.svelte";
 import Switch from "./../atoms/Switch.svelte";
 import {propsFactory} from "../lib/factories.js";
+import Toast from "./../atoms/Toast.svelte";
 // import Timeline from "./Timeline.svelte";
 // import Actions from "./Actions.svelte";
+export let toast = {};
 
 $: props = {};
 $: fullBody = {label: 'Full body', value:false};
+$: toast;    
+
 
 onMount(async () => {
     await fetch(`http://localhost:3000/props/`)
         .then(r => r.json())
         .then(data => {
             props = propsFactory(data);
+            console.log('props on mount', props);
         })
         .catch(e => console.log(e));
-})
-afterUpdate(() => {
-    
 });
 
 function reloadProps() {
-    console.log('submitted', event.detail);
     console.log('updated props',props);
-}
+};
 
 </script>
 
@@ -57,12 +58,15 @@ function reloadProps() {
         </div>
         <div class="Props">
             {#if fullBody.value == false}
-                <Props category="top" bind:props={props.top} />
-                <Props category="bottom" bind:props={props.bottom} />
+                <Props category="top" bind:props={props} bind:toast={toast}/>
+                <Props category="bottom" bind:props={props} bind:toast={toast} />
             {:else}
-                <Props category="fullBody" bind:props={props.fullBody} />
+                <Props category="fullBody" bind:props={props} />
             {/if}
-            <Props category="feet" bind:props={props.feet} />
+            <Props category="feet" bind:props={props} />
         </div>
     </div>
+
+    <Toast bind:toast={toast} />
+
 </div>

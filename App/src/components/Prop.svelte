@@ -1,30 +1,51 @@
 <script>
-    import { deepCopy, revertChanges } from "../lib/utilities";
+    import { createEventDispatcher } from 'svelte';
+    import { deepCopy, revertChanges, isObject } from "../lib/utilities";
     import { deleteUndoToast } from "../lib/toasts";
-    import Toast from "./../atoms/Toast.svelte";
+    
 
     export let prop = {};
-    export let props;
+    export let props = {};
+    export let category = "";
+    export let toast;
+
     let initialProp;
 
     $: editMode = false;
     $: updatedValues = false;
     $: updatedValuesObj = {};
     $: prop;
-    $: props = props;
-    $: toast = null;
+    $: props;
+    $: toast;
     
+    const dispatch = createEventDispatcher();
 
     async function asyncDelete(prop) {
-        props.splice(props.indexOf(prop), 1);
-
+        
+        if (props[category].indexOf(prop) > -1) {
+            dispatch("delete", prop);
+            await undoDelete(prop);
+        }
         function undoDelete() {
-            return new Promise (resolve => {
-                toast = deleteUndoToast;
-                setTimeout(() => {
-                    resolve(toast.ToastActionClicked);
-                }, toast.ToastDuration);
-            });
+            toast = deleteUndoToast;
+            console.log('toast', toast);
+            setTimeout(() => {
+                if (toast.ToastActionClicked == true) {
+                    console.log("Won't delete");
+                    dispatch("cancelDelete", prop);
+                } else {
+                    console.log("Will delete");
+                    dispatch("delete", prop);
+                    if (props[category].indexOf(prop) > -1) {
+                        props[category].splice(props[category].indexOf(prop), 1);
+                        props = props;
+                    };
+                    if (prop._id) {
+                        deleteProp(prop);
+                    };
+                }
+                
+            }, toast.ToastDuration);
         };
 
         async function deleteProp(prop) {
@@ -45,15 +66,7 @@
                 alert('Something went wrong deleting the item');
             }
         }
-
-        const result = await undoDelete();
-        if (result == false) {
-            console.log('Yes delete!');
-            deleteProp(prop);
-        } else if (result == true) {
-            console.log('No delete!')
-        }
-        return props;
+        
     }
     
     function handleClick() {
@@ -283,7 +296,7 @@
 
 </style>
 
-<article class="Prop">
+<article class="Prop" id={prop._id}>
     <div class="prop_gallery">
         <img src="{prop.imgUrl}" alt="">
     </div>
@@ -298,11 +311,13 @@
         {#if prop.tags}
             <ul class="prop_info_tags">
                 {#each prop.tags as tag, i}
-                    <li id="tags-{i}"
-                    on:click="{handleClick}"
-                    contentEditable={editMode ? 'true' : 'false'}>
-                        {tag}
-                    </li>
+                    {#if tag != ''}
+                        <li id="tags-{i}"
+                        on:click="{handleClick}"
+                        contentEditable={editMode ? 'true' : 'false'}>
+                            {tag}
+                        </li>
+                    {/if}
                 {:else}
                     {#if editMode && prop.tags[0] == undefined}
                         <li id="tags-{prop.tags.length}" 
@@ -374,25 +389,22 @@
         }>Add to outfit</button> -->
         {#if editMode == false}
             <button on:click={
-                () => editProp(prop)
+                editProp(prop)
             }><i class="far fa-edit"></i></button>
         {:else}
         <div>
             <button on:click={
-                () => saveEditedProp(prop)
+                saveEditedProp(prop)
             } disabled={updatedValues ? false : true}><i class="far fa-save"></i></button>
  
             <button on:click={
-                () => cancelEditProp(prop)
+                cancelEditProp(prop)
             }><i class="far fa-times-circle"></i></button>
         </div>
         {/if}
         <button on:click={
-            () => asyncDelete(prop)
+            asyncDelete(prop)
         }><i class="far fa-trash-alt"></i></button>
     </div>
 </article>
 
-{#if toast != null}
-    <Toast bind:Toast={ toast }/>
-{/if}

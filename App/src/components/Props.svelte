@@ -1,9 +1,22 @@
 <script>
+    import { fade } from 'svelte/transition';
     import Prop from "./Prop.svelte";
-    export let props;
-    export let category;
+    export let props = {};
+    export let category = '';
+    export let toast;
 
-    $: props = props;
+    $: props;
+    $: props[category];
+    $: toast;
+
+    function handleDelete(e) {
+        document.getElementById('Card_' + e.detail._id).style.display = "none";
+        console.log('toast 2', toast)
+    }
+    function handleCancelDelete(e) {
+        document.getElementById('Card_' + e.detail._id).style.display = "block";
+        toast = null;
+    }
     
 </script>
 
@@ -30,10 +43,15 @@
 </style>
 
 <div class="Props__container--{category}">
-    {#if props}
-        {#each props as prop}
-            <div class="Card">
-                <Prop {prop} bind:props={props} />
+    {#if props[category] }
+        {#each props[category] as prop (prop._id)}
+            <div class="Card" id="Card_{prop._id}" transition:fade>
+                <Prop {prop} 
+                category={category} 
+                bind:props={props} 
+                bind:toast={toast} 
+                on:delete={handleDelete} 
+                on:cancelDelete={handleCancelDelete} />
             </div>
         {/each}
     {:else}

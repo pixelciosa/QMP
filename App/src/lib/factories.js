@@ -106,7 +106,6 @@ class accessoryObject extends propObject {
 }
 
 function propsFactory(arr) {
-    console.log(arr);
     let propsObj = {
         'top': [],
         'bottom': [],
@@ -136,7 +135,6 @@ function propsFactory(arr) {
             propsObj['accesories'].push(obj);
         }
     }
-    console.log('propsObj', propsObj);
     return propsObj;
 }
 

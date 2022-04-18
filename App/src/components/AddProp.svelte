@@ -5,8 +5,8 @@
     import {categoriesFactory, topObject, bottomObject, feetObject, accessoryObject, fullBodyObject} from "../lib/factories.js";
 
     const dispatch = createEventDispatcher();
-    export let props;
-    $: props = props;
+    export let props = {};
+    $: props
     // let initialPropsLength = props[top].length;
     // $: if (props[top].length != initialPropsLength) {
     //     console.log('props changed');
@@ -22,7 +22,6 @@
     let category;
 
     onMount(async () => {
-        console.log('props on mount Add item', props);
         await fetch(`http://localhost:3000/categories/`)
             .then(r => r.json())
             .then(data => {
@@ -95,11 +94,10 @@
                 if (formData.category == 'fullBody') {
                     newObj = new fullBodyObject(formData);
                 };
-                props[formData.category].push(newObj);
+                newObj._id = Date.now(); // temporary id needed for the update
+                props[formData.category] = [...props[formData.category], newObj];
             }
         );
-        console.log(props);
-        return props;  
     }
 
 </script>
@@ -207,7 +205,7 @@
                     {/each}
                 {/if}
             </select>
-            <button type="submit" on:click="{() => dispatch('submit', props)}">Add</button>
+            <button type="submit">Add</button>
         </div>
         <div class="form_group">
             <input

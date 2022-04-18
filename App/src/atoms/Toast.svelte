@@ -1,38 +1,45 @@
 <script>
-    import { onMount } from 'svelte';
-    import { slide } from 'svelte/transition';
-    import { afterUpdate } from 'svelte';
+    import { afterUpdate, onMount } from 'svelte';
+    import { flip } from "svelte/animate";
+    import { fly } from "svelte/transition";
 
-    export let Toast = {};
-
-    let toastElement;
+    export let toast;
+    export let toasts = [];
+    $: toast;
     
     onMount(() => {
-        toastElement = document.querySelector('.Toast');
-        Toast.ToastActionClicked = false;
-        showToast();
+        console.log('Toast mounted');
     });
+    // afterUpdate((toast) => {
+    //     console.log('Toast updated');
+    //     console.log('toast', toast);
+    //     toast.id = Date.now();
+    //     toasts = [...toasts, toast];
+    //     toast.ToastActionClicked = false;
+    //     showToast();
+    // });
+
     function showToast() {
-        toastElement.classList.add('show');
         return setTimeout(() => {
             dismissToast();
-        }, Toast.ToastDuration);
-    }
+        }, toast.ToastDuration);
+    };
+
     function dismissToast() {
-        toastElement.remove();
-        return Toast.ToastActionClicked = false;
-    }
+        toast.ToastActionClicked = false;
+        return toast.ToastActionClicked;
+    };
 
     function handleClick(event) {
         if (event.target.innerHTML === 'Dismiss') {
+            console.log('Dismiss clicked');
             return dismissToast();
         } else {
             console.log('toast action clicked');
-            Toast.ToastActionClicked = true; 
-            return Toast.ToastActionClicked
+            toast.ToastActionClicked = true; 
+            return toast.ToastActionClicked;
         }
-    }
-
+    };
 
 </script>
 
@@ -63,7 +70,11 @@
 
 </style>
 
-<div class="Toast Toast--{Toast.ToastType}" transition:slide>
-    <div class="toast__message">{Toast.ToastMessage}</div>
-    <div class="toast__action"><button on:click="{handleClick}">{Toast.ToastAction}</button></div>
+<div class="Toasts">
+    {#each toasts as toast (toast.id)}
+        <div class="Toast Toast--{toast.ToastType}" animate:flip transition:fly={{ y: 30 }}>
+            <div class="toast__message">{toast.ToastMessage}</div>
+            <div class="toast__action"><button on:click="{handleClick}">{toast.ToastAction}</button></div>
+        </div>
+    {/each}
 </div>
