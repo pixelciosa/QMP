@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --mode production",
-    "build:watch": "webpack --watch --mode production",
+    "build": "node ./scripts/create-env.js && webpack --mode production",
+    "build:watch": "node ./scripts/create-env.js && webpack --watch --mode production",
     "dev": "webpack --config webpack.config.dev.js"
   },
   "keywords": [],
