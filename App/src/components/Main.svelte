@@ -1,22 +1,31 @@
 <script>
 
-import {onMount, afterUpdate} from "svelte";
+import {onMount} from "svelte";
 import Props from "./Props.svelte";
 import AddProp from "./AddProp.svelte";
 import Switch from "./../atoms/Switch.svelte";
 import {propsFactory} from "../lib/factories.js";
-import Toast from "./../atoms/Toast.svelte";
+import Toast from "../atoms/Toast.svelte";
+import { notifications } from "../lib/notifications";
 // import Timeline from "./Timeline.svelte";
 // import Actions from "./Actions.svelte";
-export let toast = {};
+
+const API= process.env.API;
 
 $: props = {};
 $: fullBody = {label: 'Full body', value:false};
-$: toast;    
+ 
+let toast;
 
+notifications.subscribe(value => {
+    toast = value
+})
+const unsubscribe = notifications.subscribe(value => {
+    toast = value
+})
 
 onMount(async () => {
-    await fetch(`http://localhost:3000/props/`)
+    await fetch(`${API}/props/`)
         .then(r => r.json())
         .then(data => {
             props = propsFactory(data);
@@ -58,8 +67,8 @@ function reloadProps() {
         </div>
         <div class="Props">
             {#if fullBody.value == false}
-                <Props category="top" bind:props={props} bind:toast={toast}/>
-                <Props category="bottom" bind:props={props} bind:toast={toast} />
+                <Props category="top" bind:props={props}/>
+                <Props category="bottom" bind:props={props}/>
             {:else}
                 <Props category="fullBody" bind:props={props} />
             {/if}
@@ -67,6 +76,6 @@ function reloadProps() {
         </div>
     </div>
 
-    <Toast bind:toast={toast} />
+    <Toast/>
 
 </div>

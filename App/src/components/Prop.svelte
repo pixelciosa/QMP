@@ -1,13 +1,11 @@
 <script>
     import { createEventDispatcher } from 'svelte';
     import { deepCopy, revertChanges, isObject } from "../lib/utilities";
-    import { deleteUndoToast } from "../lib/toasts";
-    
+    import { notifications } from "../lib/notifications.js";
 
     export let prop = {};
     export let props = {};
     export let category = "";
-    export let toast;
 
     let initialProp;
 
@@ -16,40 +14,48 @@
     $: updatedValuesObj = {};
     $: prop;
     $: props;
-    $: toast;
+
     
+    const API= process.env.API;
     const dispatch = createEventDispatcher();
 
     async function asyncDelete(prop) {
         
         if (props[category].indexOf(prop) > -1) {
-            dispatch("delete", prop);
+            // dispatch("delete", prop);
             await undoDelete(prop);
         }
         function undoDelete() {
-            toast = deleteUndoToast;
-            console.log('toast', toast);
+            notifications.warning('Deleting item...');
+            console.log('pre set timeout', notifications.warning)
+            console.log('pre set timeout 2', notifications)
             setTimeout(() => {
-                if (toast.ToastActionClicked == true) {
-                    console.log("Won't delete");
-                    dispatch("cancelDelete", prop);
-                } else {
-                    console.log("Will delete");
-                    dispatch("delete", prop);
-                    if (props[category].indexOf(prop) > -1) {
-                        props[category].splice(props[category].indexOf(prop), 1);
-                        props = props;
-                    };
-                    if (prop._id) {
-                        deleteProp(prop);
-                    };
-                }
-                
-            }, toast.ToastDuration);
+                notifications.subscribe(value => {
+                    let warning = value;
+                    console.log('warning', warning);
+                    console.log("some undo", warning.actions.find(execute = 'undo'));
+                    
+                    if (warning.actions.find(execute = 'undo')) {
+                        console.log("Won't delete");
+                        dispatch("cancelDelete", prop);
+                    } else {
+                        console.log("Will delete");
+                        dispatch("delete", prop);
+                        if (props[category].indexOf(prop) > -1) {
+                            props[category].splice(props[category].indexOf(prop), 1);
+                            props = props;
+                        };
+                        if (prop._id) {
+                            deleteProp(prop);
+                        };
+                    }
+                });
+                console.log('de largo')
+            }, notifications.warning.timeout);
         };
 
         async function deleteProp(prop) {
-            const response = await fetch(`http://localhost:3000/props/${prop._id}`, {
+            const response = await fetch(`${API}/props/${prop._id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -140,7 +146,7 @@
     }
     async function saveEditedProp(prop) {
         if (updatedValuesObj != {}) {
-            const response = await fetch(`http://localhost:3000/props/${prop._id}`, {
+            const response = await fetch(`${API}/${prop._id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'

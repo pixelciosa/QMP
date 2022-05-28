@@ -11,11 +11,9 @@
 
     function handleDelete(e) {
         document.getElementById('Card_' + e.detail._id).style.display = "none";
-        console.log('toast 2', toast)
     }
     function handleCancelDelete(e) {
         document.getElementById('Card_' + e.detail._id).style.display = "block";
-        toast = null;
     }
     
 </script>

@@ -4,6 +4,7 @@
     import {strToArr} from '../lib/utilities.js';
     import {categoriesFactory, topObject, bottomObject, feetObject, accessoryObject, fullBodyObject} from "../lib/factories.js";
 
+    const API= process.env.API;
     const dispatch = createEventDispatcher();
     export let props = {};
     $: props
@@ -22,7 +23,7 @@
     let category;
 
     onMount(async () => {
-        await fetch(`http://localhost:3000/categories/`)
+        await fetch(`${API}/categories/`)
             .then(r => r.json())
             .then(data => {
                 categories = data.map((category) => {

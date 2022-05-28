@@ -1,80 +1,84 @@
 <script>
-    import { afterUpdate, onMount } from 'svelte';
     import { flip } from "svelte/animate";
     import { fly } from "svelte/transition";
+    import { notifications } from "../lib/notifications.js";
 
-    export let toast;
-    export let toasts = [];
-    $: toast;
-    
-    onMount(() => {
-        console.log('Toast mounted');
-    });
-    // afterUpdate((toast) => {
-    //     console.log('Toast updated');
-    //     console.log('toast', toast);
-    //     toast.id = Date.now();
-    //     toasts = [...toasts, toast];
-    //     toast.ToastActionClicked = false;
-    //     showToast();
-    // });
-
-    function showToast() {
-        return setTimeout(() => {
-            dismissToast();
-        }, toast.ToastDuration);
+    export let themes = {
+        danger: "#E26D69",
+        success: "#84C991",
+        warning: "#f0ad4e",
+        info: "#5bc0de",
+        default: "#aaaaaa"
     };
-
-    function dismissToast() {
-        toast.ToastActionClicked = false;
-        return toast.ToastActionClicked;
-    };
-
-    function handleClick(event) {
-        if (event.target.innerHTML === 'Dismiss') {
-            console.log('Dismiss clicked');
-            return dismissToast();
-        } else {
-            console.log('toast action clicked');
-            toast.ToastActionClicked = true; 
-            return toast.ToastActionClicked;
-        }
-    };
-
+    const handleClick = (notification, action) => {
+        console.log('spread', $notifications);
+        $notifications.update(notification.actions.find(a => a.execute == action ? a.update(toastActionClicked = true) : ''))
+       // notification.actions.find(a => a.execute == action ? a.update(toastActionClicked = true) : '');
+    }
 </script>
 
 <style>
-    .Toast {
+    .notifications {
         position: fixed;
-        z-index: 1000;
-        bottom: -50px;
+        bottom: 10px;
         left: 0;
         right: 0;
-        padding: 15px;
+        margin: 0 auto;
+        padding: 0;
+        z-index: 9999;
         display: flex;
-        align-content: space-between;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
-    .Toast.show {
-        bottom: 0;
+
+    .toast {
+        flex: 1 0 100%;
+        margin-bottom: 10px;
+        min-width: 100%;
     }
-    .Toast--info-delete {
-        background-color: #343a40;
-        color: #f8f9fa;
+
+    .content {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #000000;
+        font-weight: 500;
     }
-    .Toast > div{
-        flex-grow: 1;
+    .actions .far {
+        font-size: 20px;
+        color: #000000;
+        z-index: 99;
     }
-    .toast__action {
-        text-align: right;
+    .actions button + button {
+        margin-left: 20px;
     }
 
 </style>
 
-<div class="Toasts">
-    {#each toasts as toast (toast.id)}
-        <div class="Toast Toast--{toast.ToastType}" animate:flip transition:fly={{ y: 30 }}>
-            <div class="toast__message">{toast.ToastMessage}</div>
-            <div class="toast__action"><button on:click="{handleClick}">{toast.ToastAction}</button></div>
+<div class="Toast notifications">
+    {#each $notifications as notification (notification.id)}
+        <div
+            animate:flip
+            class="toast"
+            style="background: {themes[notification.type]};"
+            transition:fly={{ y: 20 }}
+        >
+            <div class="content">
+                {notification.message}
+                
+                {#if notification.actions}
+                    <div class="actions">
+                        {#if notification.actions[0].icon}
+                        <i class={notification.actions[0].icon}/>
+                        {/if}
+                        {#each notification.actions as action}
+                        <button on:click={handleClick(notification, action.execute)}>{action.text}</button>
+                        {/each}
+                    </div>
+                {/if}
+            </div>
         </div>
     {/each}
 </div>
