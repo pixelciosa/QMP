@@ -1,6 +1,6 @@
 import { writable, derived } from "svelte/store";
 
-const timeout = 20000;
+const timeout = 2000;
 
 const actions = {
     dismiss: {
@@ -21,17 +21,20 @@ const actions = {
     }
 }
 
-function createNotificationStore (timeout) {
-    const _notifications = writable([])
+let _notifications = writable([]);
 
-    function send (message, type = "default", timeout, actions = [actions.dismiss]) {
+function createNotificationStore (timeout) {
+
+    function send (message, propId = "null", type = "default", timeout, actions = [actions.dismiss]) {
         _notifications.update(state => {
-            return [...state, { id: id(), type, message, timeout, actions }]
+            //console.log('copiedActions', copiedActions)
+            console.log('{ id: id(), propId, type, message, timeout, actions }', { id: id(), propId, type, message, timeout, actions })
+            return [...state, { id: id(), propId, type, message, timeout, actions }]
         })
     }
-
-    const notifications = derived(_notifications, ($_notifications, set) => {
-        set($_notifications)
+    
+    let notifications = derived(_notifications, ($_notifications, set) => {
+        set($_notifications);
         if ($_notifications.length > 0) {
             const timer = setTimeout(() => {
                 _notifications.update(state => {
@@ -44,21 +47,44 @@ function createNotificationStore (timeout) {
             }
         }
     })
-    const { subscribe } = notifications
+    let { subscribe } = notifications;
+
+    let getTimeoutConst = () => {
+        return timeout
+    }
+    let dismissNotification = (id) => {
+        console.log('id notif', id)
+        document.getElementById(`toast_${id}`).style.display = 'none';
+        _notifications.update(state => {
+            let arr = [...state];
+            let i = state.findIndex(x => x.id == id);
+            if (i >= 0) {
+                arr.splice(i, 1);
+                console.log('state pre', state);
+                state = arr;
+                console.log('state post', state);
+                return state;
+            }
+        })
+    }
 
     return {
         subscribe,
         send,
-		default: (msg) => send(msg, "default", timeout, [actions.dismiss]),
-        danger: (msg) => send(msg, "danger", timeout, [actions.confirm]),
-        warning: (msg) => send(msg, "warning", timeout, [actions.undo, actions.dismiss]),
-        info: (msg) => send(msg, "info", timeout, [actions.dismiss]),
-        success: (msg) => send(msg, "success", timeout, [actions.dismiss])
+		default: (msg, propId) => send(msg, propId, "default", timeout, [actions.dismiss]),
+        danger: (msg, propId) => send(msg, propId, "danger", timeout, [actions.confirm]),
+        warning: (msg, propId) => send(msg, propId, "warning", timeout, [actions.undo, actions.dismiss]),
+        info: (msg, propId) => send(msg, propId, "info", timeout, [actions.dismiss]),
+        success: (msg, propId) => send(msg, propId, "success", timeout, [actions.dismiss]),
+        getTimer: () => getTimeoutConst(),
+        dismiss: (id) => dismissNotification(id)
     }
 }
+
 
 function id() {
     return Date.now()
 };
 
-export const notifications = createNotificationStore(timeout)
+export let notifications = createNotificationStore(timeout);
+

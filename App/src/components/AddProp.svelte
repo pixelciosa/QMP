@@ -4,7 +4,7 @@
     import {strToArr} from '../lib/utilities.js';
     import {categoriesFactory, topObject, bottomObject, feetObject, accessoryObject, fullBodyObject} from "../lib/factories.js";
 
-    const API= process.env.API;
+    //const API = process.env.API ? process.env.API : 'http://localhost:3000/';
     const dispatch = createEventDispatcher();
     export let props = {};
     $: props
@@ -23,7 +23,7 @@
     let category;
 
     onMount(async () => {
-        await fetch(`${API}/categories/`)
+        await fetch(`http://localhost:3000/categories/`)
             .then(r => r.json())
             .then(data => {
                 categories = data.map((category) => {
@@ -63,9 +63,11 @@
         let arrTags = new strToArr(formData.tags);
         formData.tags = arrTags;
         let arrFabrics = new strToArr(formData.fabrics);
-        formData.fabric = arrFabrics;
+        formData.fabrics = arrFabrics;
         let arrColors = new strToArr(formData.colors);
         formData.colors = arrColors;
+        console.log('formData.colors', formData.colors);
+        console.log('arrColors', arrColors);
 
         // Send data to the API
         await fetch('http://localhost:3000/props/',{

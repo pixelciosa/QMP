@@ -1,4 +1,5 @@
 <script>
+    import { createEventDispatcher } from 'svelte';
     import { flip } from "svelte/animate";
     import { fly } from "svelte/transition";
     import { notifications } from "../lib/notifications.js";
@@ -10,10 +11,20 @@
         info: "#5bc0de",
         default: "#aaaaaa"
     };
-    const handleClick = (notification, action) => {
-        console.log('spread', $notifications);
-        $notifications.update(notification.actions.find(a => a.execute == action ? a.update(toastActionClicked = true) : ''))
-       // notification.actions.find(a => a.execute == action ? a.update(toastActionClicked = true) : '');
+
+    const dispatch = createEventDispatcher();
+
+    const handleClick = (notifId, propId, action) => {
+        // undo delete
+        if (action === "undo") {
+            notifications.update(
+                
+            )
+        }
+        // dismiss notification
+        if (action === "dismiss") {
+            return notifications.dismiss(notifId);
+        }
     }
 </script>
 
@@ -62,8 +73,10 @@
         <div
             animate:flip
             class="toast"
+            id="toast_{notification.id}"
             style="background: {themes[notification.type]};"
-            transition:fly={{ y: 20 }}
+            in:fly="{{ y: 20 }}" 
+            out:fly="{{ x: -100, duration: 1000 }}"
         >
             <div class="content">
                 {notification.message}
@@ -74,7 +87,7 @@
                         <i class={notification.actions[0].icon}/>
                         {/if}
                         {#each notification.actions as action}
-                        <button on:click={handleClick(notification, action.execute)}>{action.text}</button>
+                        <button on:click={handleClick(notification.id, notification.propId, action.execute)}>{action.text}</button>
                         {/each}
                     </div>
                 {/if}

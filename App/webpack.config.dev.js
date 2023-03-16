@@ -1,6 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const Dotenv = require('dotenv-webpack');
+const Dotenv = require('dotenv-webpack')
 
 module.exports = {
     entry: './src/index.js',
@@ -9,7 +9,6 @@ module.exports = {
         filename: 'bundle.js'
     },
     mode: 'development',
-    watch: true,
     resolve: {
         extensions: ['*', '.mjs', '.js', 'svelte']
     },
@@ -43,11 +42,21 @@ module.exports = {
         ]
     },
     plugins: [
+        new Dotenv({
+            prefix: 'import.meta.env.',
+            ignoreStub: true
+        }),
         new HtmlWebpackPlugin({
             inject: true,
             template: './public/index.html',
             filename: './index.html'
-        }),
-        new Dotenv(),
-    ]
+        })
+    ],
+    devServer: {
+		static: path.join(__dirname, 'dist'),
+		compress: true,
+		historyApiFallback: true,
+		port: 8080,
+		open: true,
+	}
 }

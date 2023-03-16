@@ -10,9 +10,11 @@
     $: toast;
 
     function handleDelete(e) {
+        console.log('handleDelete');
         document.getElementById('Card_' + e.detail._id).style.display = "none";
     }
     function handleCancelDelete(e) {
+        console.log('handleCancelDelete');
         document.getElementById('Card_' + e.detail._id).style.display = "block";
     }
     
@@ -42,7 +44,7 @@
 
 <div class="Props__container--{category}">
     {#if props[category] }
-        {#each props[category] as prop (prop._id)}
+        {#each [ ...props[category] ].reverse() as prop (prop._id)}
             <div class="Card" id="Card_{prop._id}" transition:fade>
                 <Prop {prop} 
                 category={category} 

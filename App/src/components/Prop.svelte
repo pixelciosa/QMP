@@ -16,46 +16,29 @@
     $: props;
 
     
-    const API= process.env.API;
+    //const API = process.env.API ? process.env.API : 'http://localhost:3000/';
     const dispatch = createEventDispatcher();
 
     async function asyncDelete(prop) {
+        notifications.warning('Deleting item...', prop._id);
         
-        if (props[category].indexOf(prop) > -1) {
-            // dispatch("delete", prop);
-            await undoDelete(prop);
-        }
-        function undoDelete() {
-            notifications.warning('Deleting item...');
-            console.log('pre set timeout', notifications.warning)
-            console.log('pre set timeout 2', notifications)
-            setTimeout(() => {
-                notifications.subscribe(value => {
-                    let warning = value;
-                    console.log('warning', warning);
-                    console.log("some undo", warning.actions.find(execute = 'undo'));
-                    
-                    if (warning.actions.find(execute = 'undo')) {
-                        console.log("Won't delete");
-                        dispatch("cancelDelete", prop);
-                    } else {
-                        console.log("Will delete");
-                        dispatch("delete", prop);
-                        if (props[category].indexOf(prop) > -1) {
-                            props[category].splice(props[category].indexOf(prop), 1);
-                            props = props;
-                        };
-                        if (prop._id) {
-                            deleteProp(prop);
-                        };
-                    }
-                });
-                console.log('de largo')
-            }, notifications.warning.timeout);
+        async function undoDelete(prop) {
+
+            let undoClicked = () => {
+                
+            };
+            return await undoClicked();
+        };
+        async function deleteFromObj(prop) {
+            if (props[category].indexOf(prop) > -1) {
+                props[category].splice(props[category].indexOf(prop), 1);
+                props = props;
+                return(prop);
+            };
         };
 
         async function deleteProp(prop) {
-            const response = await fetch(`${API}/props/${prop._id}`, {
+            const response = await fetch(`http://localhost:3000/props/${prop._id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -71,11 +54,10 @@
                 console.log(data)
                 alert('Something went wrong deleting the item');
             }
-        }
-        
-    }
+        };
+    };
     
-    function handleClick() {
+    function handleEditClick() {
         let key = this.id;
         let initialValue = prop[key];
         console.log('prop', prop);
@@ -146,7 +128,7 @@
     }
     async function saveEditedProp(prop) {
         if (updatedValuesObj != {}) {
-            const response = await fetch(`${API}/${prop._id}`, {
+            const response = await fetch(`http://localhost:3000/props/${prop._id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
@@ -308,7 +290,7 @@
     </div>
     <div class="prop_title">
         <h2 id="title" 
-            on:click={handleClick} 
+            on:click={handleEditClick} 
             contentEditable={editMode ? 'true' : 'false'}>
                 {prop.title}
         </h2>
@@ -319,7 +301,7 @@
                 {#each prop.tags as tag, i}
                     {#if tag != ''}
                         <li id="tags-{i}"
-                        on:click="{handleClick}"
+                        on:click="{handleEditClick}"
                         contentEditable={editMode ? 'true' : 'false'}>
                             {tag}
                         </li>
@@ -327,7 +309,7 @@
                 {:else}
                     {#if editMode && prop.tags[0] == undefined}
                         <li id="tags-{prop.tags.length}" 
-                            on:click="{handleClick}" 
+                            on:click="{handleEditClick}" 
                             contentEditable="true">
                                 + tag
                         </li>
@@ -335,7 +317,7 @@
                 {/each}
                 {#if editMode && prop.tags[0] != undefined}
                     <li id="tags-{prop.tags.length}" 
-                        on:click="{handleClick}" 
+                        on:click="{handleEditClick}" 
                         contentEditable="true">
                             +
                     </li>
@@ -347,17 +329,17 @@
                 {#each prop.colors as color, i}
                     <li id="colors-{i}"
                     style="border-color: {color};"
-                    on:click="{handleClick}"
+                    on:click="{handleEditClick}"
                     contentEditable={editMode ? 'true' : 'false'}>
                         {color}
                     </li>
                 {:else}
                     {#if editMode && prop.colors[0] == undefined}
-                        <li class="prop_add-color" id="colors-{prop.colors.length}" on:click="{handleClick}" contentEditable="true">+ Color</li>
+                        <li class="prop_add-color" id="colors-{prop.colors.length}" on:click="{handleEditClick}" contentEditable="true">+ Color</li>
                     {/if}
                 {/each}
                 {#if editMode && prop.colors[0] != undefined}
-                    <li class="prop_add-color" id="colors-{prop.colors.length}" on:click="{handleClick}" contentEditable="true">+</li>
+                    <li class="prop_add-color" id="colors-{prop.colors.length}" on:click="{handleEditClick}" contentEditable="true">+</li>
                 {/if}
             </ul>
         {/if}
@@ -365,7 +347,7 @@
             <ul class="prop_info_fabrics">
                 {#each prop.fabrics as fabric, i}
                     <li id="fabrics-{i}"
-                    on:click="{handleClick}"
+                    on:click="{handleEditClick}"
                     contentEditable={editMode ? 'true' : 'false'}>
                         {#if fabric == "" && editMode}
                             + fabric
@@ -375,16 +357,16 @@
                     </li>
                 {:else}
                     {#if editMode && prop.fabrics[0] == ''}
-                        <li id="fabrics-{prop.fabrics.length}" on:click="{handleClick}" contentEditable="true">+ fabric</li>
+                        <li id="fabrics-{prop.fabrics.length}" on:click="{handleEditClick}" contentEditable="true">+ fabric</li>
                     {/if}
                 {/each}
                 {#if editMode && prop.fabrics[0] != ''}
-                    <li id="fabrics-{prop.fabrics.length}" on:click="{handleClick}" contentEditable="true">+</li>
+                    <li id="fabrics-{prop.fabrics.length}" on:click="{handleEditClick}" contentEditable="true">+</li>
                 {/if}
             </ul>
         {/if}
         {#if editMode}
-            <div class="dont-break-out" id="imgUrl" on:click={handleClick} contentEditable="true">
+            <div class="dont-break-out" id="imgUrl" on:click={handleEditClick} contentEditable="true">
                 {prop.imgUrl ? prop.imgUrl : "Paste image's URL"}
             </div>
         {/if}

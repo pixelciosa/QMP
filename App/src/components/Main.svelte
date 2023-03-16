@@ -7,10 +7,11 @@ import Switch from "./../atoms/Switch.svelte";
 import {propsFactory} from "../lib/factories.js";
 import Toast from "../atoms/Toast.svelte";
 import { notifications } from "../lib/notifications";
+
 // import Timeline from "./Timeline.svelte";
 // import Actions from "./Actions.svelte";
 
-const API= process.env.API;
+const API = import.meta.env.API ? import.meta.env.API : 'http://localhost:3000/';
 
 $: props = {};
 $: fullBody = {label: 'Full body', value:false};
@@ -25,7 +26,9 @@ const unsubscribe = notifications.subscribe(value => {
 })
 
 onMount(async () => {
+    console.log('API', API);
     await fetch(`${API}/props/`)
+    //await fetch('http://localhost:3000/props/')
         .then(r => r.json())
         .then(data => {
             props = propsFactory(data);
